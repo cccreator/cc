@@ -1,0 +1,192 @@
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+
+EXEC SQL BEGIN DECLARE SECTION; 
+	sql_context pContext;
+	long SQLCODE;
+EXEC SQL END DECLARE SECTION;
+
+extern void sqlglmt(void*, char*, size_t*, size_t* ); 
+
+void sql_error()//定义一个错误安装函数
+{
+	char sErrorString[512];
+	size_t tMessageSize = 0;
+	size_t tErrorSize = sizeof(sErrorString);
+	memset(sErrorString, 0, sizeof(sErrorString));
+	sqlglmt(pContext, sErrorString, &tErrorSize, &tMessageSize);
+	sErrorString[tMessageSize] = 0;
+	printf("%s\n", sErrorString);
+}
+
+void sql_init()//初始化oracle
+{
+	SQLCODE = 0;
+	pContext = NULL;
+	EXEC SQL ENABLE THREADS;//标明可以在线程中使用
+	EXEC SQL CONTEXT ALLOCATE :pContext;//为pContext分配资源
+	EXEC SQL CONTEXT USE :pContext;//使用m_pContext
+}
+
+int sql_free()
+{
+	SQLCODE = 0;
+	EXEC SQL CONTEXT FREE :pContext;	
+	if (SQLCODE != 0)
+	{
+		sql_error();
+		return -1;
+	}else
+	{
+		return 0;
+	}
+}
+
+int sql_connect(const char *User, const char *Password, const char *DBName)
+{
+	sql_init();
+	EXEC SQL BEGIN DECLARE SECTION;
+		const char *sUser;
+		const char *sPassword;
+		const char *sServer;
+	EXEC SQL END DECLARE SECTION;
+	SQLCODE = 0;
+	sUser = User;
+	sPassword = Password;
+	sServer = DBName;
+	EXEC SQL CONNECT :sUser IDENTIFIED BY :sPassword USING :sServer;//连接到oracle
+	if (SQLCODE != 0)
+	{
+		sql_error();//连接失败，打印错误原因
+		return -1;
+	}else
+	{
+		return 0;
+	}
+}
+
+int sql_disconnect()//断开数据库连接
+{
+	SQLCODE = 0;
+	EXEC SQL ROLLBACK WORK RELEASE;
+	return sql_free();
+}
+
+void addurl(const char *url, const char *name, const char *description,
+		char **buf)	//向动态消息体中添加一个url链接
+{
+	char content[1024];
+	memset(content, 0, sizeof(content));
+	sprintf(content, "<a href=\"http://%s\">%s</a></br>%s%s</br></br>", url,
+			name, name, description);//格式化字符串
+
+	if (*buf != NULL)//addurl函数已经调用过了，所以buf的值不等于NULL
+	{
+		int buflen = strlen(*buf);//得到buf中字符串的长度
+		int contentlen = strlen(content);//得到conntent中字符串的长度
+		int sumlen = buflen + contentlen;//得到buf中字符串和content中字符串的长度之和
+		char *tmp = malloc(sumlen + 1);//分配一个新的临时缓冲区tmp，大小为buf + context
+		memset(tmp, 0, sumlen + 1);
+		strncpy(tmp, *buf, buflen);//将buf中的字符串拷贝到tmp
+		strncpy(&tmp[buflen], content, contentlen);//将content中的字符串追加到tmp后面
+		free(*buf);//释放buf之前的内存
+		*buf = tmp;//将buf指向tmp的内存区域
+	} else	//第一次调用addurl函数
+	{
+		int contentlen = strlen(content);//得到content中字符串的长度
+		*buf = malloc(contentlen + 1);//根据content中字符串的长度动态分配内存空间buf
+		memset(*buf, 0, contentlen + 1);
+		strncpy(*buf, content, contentlen);//将content中字符串拷贝到buf
+	}
+}
+
+//以name为参数，执行“select url, name, description from baidu where name like” SQL语句
+int query_result(const char *name, char **buf)
+{
+	EXEC SQL BEGIN DECLARE SECTION;
+		int iOccurs;
+		short iInd;
+		char sData1[1024];//result buffer;
+		char sData2[1024];//result buffer;
+		char sData3[1024];//result buffer;
+		char sOutput[64];
+		char sInput[64];
+		const char *sDySQL;
+	EXEC SQL END DECLARE SECTION;
+
+	int res = -1;
+	char sSQL[1024];
+	memset(sSQL, 0, sizeof(sSQL));
+	sprintf(sSQL,
+			"select url, name, description from baidu where name like '%%%s%%'",
+			name);	
+	printf("%s\n", sSQL);
+	
+	SQLCODE = 0;
+	sDySQL = sSQL;	
+	sprintf(sOutput, "output%p", pContext);//生成一个在系统中不会重复的字符串
+	sprintf(sInput, "input%p", pContext);//生成一个在系统中不会重复的字符串
+	EXEC SQL ALLOCATE DESCRIPTOR :sOutput;//为输出空间分配资源
+	EXEC SQL ALLOCATE DESCRIPTOR :sInput;//为输入空间分配资源
+	EXEC SQL PREPARE S FROM :sDySQL;//准备执行指定的SELECT语句
+	if (SQLCODE != 0)
+	{
+		sql_error();//如果错误，打印错误原因
+		EXEC SQL DEALLOCATE DESCRIPTOR :sInput;//释放已经分配的输入空间资源
+		EXEC SQL DEALLOCATE DESCRIPTOR :sOutput;//释放已经分配的输出空间资源
+		return res;		
+	}		
+
+	EXEC SQL DECLARE C CURSOR FOR S;//定义一个游标C	
+	EXEC SQL OPEN C USING DESCRIPTOR :sInput;//打开游标C
+	/*选择输出区域*/
+	EXEC SQL DESCRIBE OUTPUT S USING DESCRIPTOR :sOutput;
+
+
+	EXEC SQL WHENEVER NOT FOUND DO BREAK;//如果查询不到记录，下面的while循环break
+	while(1)
+	{
+		/*行数据，输出描述区*/ 
+		EXEC SQL FETCH C INTO DESCRIPTOR :sOutput;	
+		memset(sData1, 0, sizeof(sData1));
+		memset(sData2, 0, sizeof(sData2));
+		memset(sData3, 0, sizeof(sData3));
+		iInd = 0;
+		iOccurs = 1;
+		EXEC SQL GET DESCRIPTOR :sOutput
+			VALUE :iOccurs :sData1 = DATA, :iInd = INDICATOR;//得到第一个字段值
+		if (iInd == -1)
+		{
+			strcpy(sData1, "NULL");//如果得到值为NULL
+		}
+		
+		iInd = 0;
+		iOccurs = 2;
+		EXEC SQL GET DESCRIPTOR :sOutput
+			VALUE :iOccurs :sData2 = DATA, :iInd = INDICATOR;//得到第二个字段值
+		if (iInd == -1)
+		{
+			strcpy(sData2, "NULL");//如果得到值为NULL
+		}
+		
+		iInd = 0;
+		iOccurs = 3;
+		EXEC SQL GET DESCRIPTOR :sOutput
+			VALUE :iOccurs :sData3 = DATA, :iInd = INDICATOR;//得到第三个字段值
+		if (iInd == -1)
+		{
+			strcpy(sData3, "NULL");//如果得到值为NULL
+		}		
+		
+		addurl(sData1, sData2, sData3, buf);//调用addurl，将查询到的行记录转化为HTML形式的字符串
+		res++;
+	}
+	EXEC SQL CLOSE C;//关闭游标C
+	EXEC SQL DEALLOCATE DESCRIPTOR :sOutput;//释放已经分配的输出空间资源
+	EXEC SQL DEALLOCATE DESCRIPTOR :sInput;//释放已经分配的输入空间资源
+	return res;	
+}
+
