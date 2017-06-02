@@ -1,0 +1,298 @@
+/*
+ ============================================================================
+ Name        : oracle.c
+ Author      : zhujy
+ Version     :
+ Copyright   : Your copyright notice
+ Description : Hello World in C, Ansi-style
+ ============================================================================
+ */
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <errno.h>
+
+//在pc文件当中，如果是嵌入式的SQL语句需要用到的变量，并且proc PARSE=PARTIAL,那么变量必须再BEGIN和END之间定义。
+EXEC SQL BEGIN DECLARE SECTION; 
+	sql_context pContext;
+	long SQLCODE;//变量类型和名称都不可以改变
+EXEC SQL END DECLARE SECTION;
+
+
+extern void sqlglmt(void*, char*, size_t*, size_t* ); 
+//安装错误处理函数
+void sql_error()
+{
+	char sErrorString[512];//自定义一个数组，数组的名字可以自定义
+	size_t tMessageSize = 0;
+	size_t tErrorSize = sizeof(sErrorString);
+	memset(sErrorString, 0, sizeof(sErrorString));
+	sqlglmt(pContext, sErrorString, &tErrorSize, &tMessageSize);//调用sqlglmt这个函数得到具体错误描述
+	sErrorString[tMessageSize] = 0;//设置错误描述字符串最后以0结尾
+	printf("%s\n", sErrorString);//打印错误描述
+}
+
+//初始化数据库
+void sql_init()
+{
+	SQLCODE = 0;
+	pContext = NULL;
+	EXEC SQL ENABLE THREADS;//可以在代码当中生成线程相关代码
+	EXEC SQL CONTEXT ALLOCATE :pContext;//为pContext分配内存
+	EXEC SQL CONTEXT USE :pContext;//使用pContext
+}
+
+int sql_connect(const char *user, const char *passwd, const char *dbname)
+{
+	EXEC SQL BEGIN DECLARE SECTION;
+		const char *sUser;
+		const char *sPasswd;
+		const char *sDBname;
+	
+	EXEC SQL END DECLARE SECTION;
+	SQLCODE = 0;
+	sUser = user;
+	sPasswd = passwd;
+	sDBname = dbname;
+	
+	//在嵌入式SQL语句里面 冒号代表要用输入变量
+	EXEC SQL CONNECT :sUser IDENTIFIED BY :sPasswd USING :sDBname;
+	
+	if (SQLCODE != 0)
+	{
+		sql_error();
+		return 1;
+	}else
+	{
+		return 0;
+	}
+}
+
+int sql_disconnect()
+{
+	SQLCODE = 0;
+	EXEC SQL ROLLBACK WORK RELEASE;
+	if (SQLCODE != 0)
+	{
+		sql_error();
+		return 1;
+	}else
+	{
+		return 0;
+	}
+}
+
+int sql_free()
+{
+	SQLCODE = 0;
+	EXEC SQL CONTEXT FREE :pContext;
+	if (SQLCODE != 0)
+	{
+		sql_error();
+		return 1;
+	}else
+	{
+		return 0;
+	}
+	
+}
+
+int sql_exec1(const char *s)
+{
+	EXEC SQL BEGIN DECLARE SECTION;
+		char SQL[1024];
+	EXEC SQL END DECLARE SECTION;
+	
+	SQLCODE = 0;
+	memset(SQL, 0, sizeof(SQL));
+	strcpy(SQL, s);
+	EXEC SQL EXECUTE IMMEDIATE :SQL;
+	if (SQLCODE != 0)
+	{
+		sql_error();
+		return 1;
+	}else
+	{
+		return 0;
+	}
+}
+
+int sql_exec2()
+{
+	EXEC SQL BEGIN DECLARE SECTION;
+		char SQL[1024];
+		int id;
+		char name[30];
+	EXEC SQL END DECLARE SECTION;
+	id = 1;
+	memset(SQL, 0, sizeof(SQL));
+	memset(name, 0, sizeof(name));
+	strcpy(name, "张学友");
+	strcpy(SQL, "insert into table1 (id, name) values (:id, :name)");
+	
+	SQLCODE = 0;
+	EXEC SQL PREPARE stat FROM :SQL;//准备执行一条SQL语句，
+	EXEC SQL EXECUTE stat USING :id, :name;//根据输入宿主变量的值，执行SQL
+	//insert into table1 (id, name) values (1, '张学友')
+	if (SQLCODE != 0)
+	{
+		sql_error();
+		return 1;
+	}else
+	{
+		return 0;
+	}	
+	
+}
+
+int sql_exec3()
+{
+	EXEC SQL BEGIN DECLARE SECTION;
+		char SQL[1024];
+		int n;
+		int id;
+		char name[32];
+	EXEC SQL END DECLARE SECTION;
+	memset(SQL, 0, sizeof(SQL));
+	memset(name, 0, sizeof(name));
+	n = 1;
+	strcpy(SQL, "select id, name from table1 where id = :n");
+	SQLCODE = 0;
+	EXEC SQL PREPARE stat FROM :SQL;//要准备执行动态SQL。
+	EXEC SQL DECLARE C1 CURSOR FOR stat;//定义一个光标表，名字叫C1
+	EXEC SQL OPEN C1 USING :n;//在光标C1中使用输入宿主变量
+	EXEC SQL OPEN C1;//打开光标C1
+	EXEC SQL WHENEVER NOT FOUND DO break;//循环读取光标C1，读取表中每一行，直到最后没有数据,循环break
+	while(1)
+	{
+		EXEC SQL FETCH C1 INTO :id, :name;//将查询结果放入到输出变量id,name
+		printf("id = %d, name = %s\n", id, name);
+	}
+	
+	return 0;
+	
+}
+
+int sql_exec4(const char *DySQL)
+{
+	EXEC SQL BEGIN DECLARE SECTION;
+		int i, iOutput_count, iOccurs, iType , iLen;
+		short iInd;
+		char sData[1024];//存放select查询数据的返回buffer
+		char sOutput[64];
+		char sInput[64];
+		const char *SQL;
+	
+	EXEC SQL END DECLARE SECTION;
+	
+	SQLCODE = 0;
+	iLen = sizeof(sData);//指示buffer大小
+	iType = 12;//所有select返回的数据集，都按照varchar2类型来处理
+	SQL = DySQL;
+	sprintf(sOutput, "output%p", pContext);//只是为了动态生成一个系统当中不重复的字符串
+	sprintf(sInput, "input%p", pContext);//只是为了动态生成一个系统当中不重复的字符串
+	EXEC SQL ALLOCATE DESCRIPTOR :sOutput;//分配SELECT语句查询输出结果缓冲区
+	EXEC SQL ALLOCATE DESCRIPTOR :sInput;
+	
+	EXEC SQL PREPARE S FROM :SQL;//准备执行相应的SQL语句
+	
+	if (SQLCODE != 0)
+	{
+		sql_error();
+		EXEC SQL DEALLOCATE DESCRIPTOR :sOutput;//释放SELECT语句查询输出结果缓冲区
+		EXEC SQL DEALLOCATE DESCRIPTOR :sInput;
+		return 1;
+	}
+	
+	EXEC SQL DECLARE C CURSOR FOR S;
+	EXEC SQL OPEN C USING DESCRIPTOR :sInput;//使用输入缓冲区打开一个光标
+	//选择输出缓冲区
+	EXEC SQL DESCRIBE OUTPUT S USING DESCRIPTOR :sOutput;
+	//得到SELECt语句返回多少列
+	EXEC SQL GET DESCRIPTOR :sOutput :iOutput_count = COUNT;
+	
+	for(i=0;i<iOutput_count;i++)
+	{
+		iOccurs = i + 1;
+		EXEC SQL SET DESCRIPTOR :sOutput
+			VALUE :iOccurs TYPE = :iType, LENGTH = :iLen;
+	}
+	EXEC SQL WHENEVER NOT FOUND DO break;
+	while(1)
+	{
+		EXEC SQL FETCH C INTO DESCRIPTOR :sOutput;//得到每一行
+		for(i = 0;i<iOutput_count;i++)//得到每行当中的每列
+		{
+			iOccurs = i +1;
+			memset(sData, 0, sizeof(sData));
+			EXEC SQL GET DESCRIPTOR :sOutput
+				VALUE :iOccurs :sData = DATA, :iInd = INDICATOR;
+			if (iInd == -1)//没有数据
+			{
+				printf("%s\t", "NULL");
+			}else
+			{
+				printf("%s\t", sData);
+			}
+		}
+		printf("\n");
+	}
+	
+	EXEC SQL CLOSE C;
+	EXEC SQL DEALLOCATE DESCRIPTOR :sOutput;//释放SELECT语句查询输出结果缓冲区
+	EXEC SQL DEALLOCATE DESCRIPTOR :sInput;
+	return 0;
+	
+}
+
+int sql_commit()
+{
+	SQLCODE = 0;
+	EXEC SQL COMMIT WORK;
+	if (SQLCODE != 0)
+	{
+		sql_error();
+		return 1;
+	}else
+	{
+		return 0;
+	}
+}
+
+int sql_rollback()
+{
+	SQLCODE = 0;
+	EXEC SQL ROLLBACK WORK;
+	if (SQLCODE != 0)
+	{
+		sql_error();
+		return 1;
+	}else
+	{
+		return 0;
+	}
+}
+
+int main(void)
+{
+	sql_init();//初始化数据库
+	sql_connect("dbuser1", "dbuser1", "orcl");//连接到数据库
+	
+	char buf[1024];
+	while(1)
+	{
+		memset(buf, 0, sizeof(buf));
+		read(STDIN_FILENO, buf, sizeof(buf));
+		buf[strlen(buf) - 1] = 0;//吃掉回车键
+		if (strncmp(buf, "exit", 4) == 0)
+			break;
+	
+		sql_exec4(buf);//执行用户输入的SQL语句
+	}
+	//sql_commit();//提交事务
+	sql_disconnect();//断开数据库连接
+	sql_free();//释放相关资源
+	return EXIT_SUCCESS;
+}
