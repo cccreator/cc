@@ -1,0 +1,483 @@
+[cc@localhost 5]$ top&
+[1] 2862
+[cc@localhost 5]$ vim a.c
+~
+~
+"a.c" [New File]                                 0,0-1         All
+
+[1]-  Stopped                 top
+
+[2]+  Stopped                 vim a.c
+[cc@localhost 5]$ jobs
+[1]-  Stopped                 top
+[2]+  Stopped                 vim a.c
+[cc@localhost 5]$ fg 1
+top
+top - 17:58:47 up 32 min,  4 users,  load average: 0.00, 0.00, 0.0
+Tasks: 173 total,   1 running, 171 sleeping,   1 stopped,   0 zomb
+Cpu(s):  0.0%us,  0.3%sy,  0.0%ni, 99.7%id,  0.0%wa,  0.0%hi,  0.0
+Mem:   1906748k total,  1026860k used,   879888k free,    23472k b
+Swap:  4095992k total,        0k used,  4095992k free,   252032k c
+
+   PID USER      PR  NI  VIRT  RES  SHR S %CPU %MEM    TIME+ 
+     1 root      20   0 19352 1528 1220 S  0.0  0.1   0:01.67
+     2 root      20   0     0    0    0 S  0.0  0.0   0:00.00
+     3 root      RT   0     0    0    0 S  0.0  0.0   0:00.00
+     4 root      20   0     0    0    0 S  0.0  0.0   0:00.01
+     5 root      RT   0     0    0    0 S  0.0  0.0   0:00.00
+[1]+  Stopped                 top
+[cc@localhost 5]$ jobs
+[1]+  Stopped                 top
+[2]-  Stopped                 vim a.c
+[cc@localhost 5]$ fg 2
+vim a.c
+
+~
+"a.c" [New] 0L, 0C written                       
+[cc@localhost 5]$ jobs
+[1]+  Stopped                 top
+[cc@localhost 5]$ ls
+a.c    makefile  pub.o         qqserver.o  work.o
+a.txt  pub.cpp   qqserver.cpp  work.cpp
+fifo1  pub.h     qqserverd     work.h
+[cc@localhost 5]$ ls>a.txt
+[cc@localhost 5]$ cat a.txt
+a.c
+a.txt
+fifo1
+makefile
+pub.cpp
+pub.h
+pub.o
+qqserver.cpp
+qqserverd
+qqserver.o
+work.cpp
+work.h
+work.o
+[cc@localhost 5]$ ls >fifo1
+[cc@localhost 5]$ ls<fifo1
+a.c    makefile  pub.o         qqserver.o  work.o
+a.txt  pub.cpp   qqserver.cpp  work.cpp
+fifo1  pub.h     qqserverd     work.h
+
+[cc@localhost 5]$ vim abc
+if
+#! /bin/sh
+a=5
+b=3
+echo a=$a
+echo b=$b
+if (test "$a" = "$b")then
+echo a=b
+else
+        echo a!=b
+fi
+~
+"abc" [New] 10L, 93C written                     
+[cc@localhost 5]$ ls -l
+total 4
+-rw-rw-r--. 1 cc cc 93 Mar 27 19:07 abc
+[cc@localhost 5]$ chmod +x abc
+[cc@localhost 5]$ vim abc
+#! /bin/sh
+a=5
+b=3
+echo a=$a
+echo b=$b
+if (test "$a" = "$b")then
+echo a=b
+else
+        echo a!=b
+fi
+~
+~
+"abc" 10L, 93C written
+[cc@localhost 5]$ abc
+-bash: abc: command not found
+[cc@localhost 5]$ ./abc
+a=5
+b=3
+a!=b
+[cc@localhost 5]$ vim abc
+#! /bin/sh
+echo $#
+echo $1
+echo $*
+~
+~
+"abc" 4L, 35C written                            
+[cc@localhost 5]$ ./abc
+0
+
+
+[cc@localhost 5]$ ./abc 1
+1
+1
+1
+[cc@localhost 5]$ ./abc 1 2
+2
+1
+1 2
+[cc@localhost 5]$ ./abc a d ga w wt rw r wd s 
+9
+a
+a d ga w wt rw r wd s
+[cc@localhost 5]$ ./abc hello world
+2
+hello
+hello world
+[cc@localhost 5]$ vim abc
+#! /bin/sh
+ls
+echo $?
+~
+"abc" 3L, 22C written                            
+[cc@localhost 5]$ ./abc
+abc
+0
+[cc@localhost 5]$ vim a.c
+int main()
+{
+return 100;
+}
+~
+"a.c" [New] 4L, 27C written 
+[cc@localhost 5]$ vim abc
+#! /bin/sh
+./a
+echo $?
+~
+"abc" 3L, 23C written                            
+[cc@localhost 5]$ ./abc
+100
+[cc@localhost 5]$ vim abc
+./a
+#! /bin/sh
+echo $# $*
+shift
+echo $# $*
+~
+"abc" 4L, 39C written                            
+[cc@localhost 5]$ ./abc
+0
+0
+[cc@localhost 5]$ abc 1 2 3 4
+-bash: abc: command not found
+[cc@localhost 5]$ ./abc 1 2 3 4 
+4 1 2 3 4
+3 2 3 4
+[cc@localhost 5]$ ./abc 1 2 3 4 5 6 7 8 9 10 11 
+11 1 2 3 4 5 6 7 8 9 10 11
+10 2 3 4 5 6 7 8 9 10 11
+[cc@localhost 5]$ vim abc
+#! /bin/sh
+echo $# $*
+shift
+echo $# $*
+shift
+echo $# $*
+~
+"abc" 6L, 56C written                            
+[cc@localhost 5]$ ./abc 1 2 3 4 5 6 7 8 9 10 11
+11 1 2 3 4 5 6 7 8 9 10 11
+10 2 3 4 5 6 7 8 9 10 11
+9 3 4 5 6 7 8 9 10   
+[cc@localhost 5]$ vim abc
+#! /bin/sh
+echo "today is" 'date'
+~
+"abc" 2L, 34C written                            
+[cc@localhost 5]$ ./abc
+today is date
+[cc@localhost 5]$ date
+Mon Mar 27 19:41:38 PDT 2017
+[cc@localhost 5]$ ./abc
+today is date
+[cc@localhost 5]$ vim abc
+#! /bin/sh
+echo "today is" 'date'
+~
+"abc" 2L, 34C written                            
+[cc@localhost 5]$ date
+Mon Mar 27 19:42:58 PDT 2017
+[cc@localhost 5]$ ./abc
+today is date
+[cc@localhost 5]$ vim abc
+#! /bin/sh
+echo "today is" `date`
+~
+"abc" 2L, 34C written                            
+[cc@localhost 5]$ date
+Mon Mar 27 19:46:40 PDT 2017
+[cc@localhost 5]$ ./abc
+today is Mon Mar 27 19:46:45 PDT 2017
+[cc@localhost 5]$ vim abc
+#! /bin/sh
+DATE=`date`
+echo "today is" $DATE
+~
+"abc" 3L, 45C written
+[cc@localhost 5]$ ./abc
+today is Mon Mar 27 19:47:55 PDT 2017
+[cc@localhost 5]$ vim a.c
+#include<stdio.h>
+#include<stdlib.h>
+#include<string.h>
+int main(int arg,char* args[])
+{
+        int a=atoi(args[1]);
+        int b=atoi(args[3]);
+        printf("%d\n",a+b);
+        return 100;
+}
+~
+"a.c" 10L, 169C written
+[cc@localhost 5]$ gcc -o a a.c
+[cc@localhost 5]$ ./a 5 + 6
+11
+[cc@localhost 5]$ vim abc
+#! /bin/sh
+a=5
+b=6
+c=`a $a + $b`
+echo $c
+~
+"abc" 5L, 41C written                            
+[cc@localhost 5]$ ./abc
+./abc: line 4: a: command not found
+[cc@localhost 5]$ vim abc
+#! /bin/sh
+a=5
+b=6
+c=`./a $a + $b`
+echo $c
+~
+"abc" 5L, 43C written                            
+[cc@localhost 5]$ ./abc
+11         
+[cc@localhost 5]$ vim abc
+#! /bin/sh
+read a
+read b
+c=`expr $a + $b`
+echo $
+~
+~
+"abc" 5L, 50C written                            
+[cc@localhost 5]$ ./abc
+2
+3
+5
+[cc@localhost 5]$ vim abc
+read a
+read b
+c=`expr $a + $b`
+#! /bin/sh
+if (test "$1" = "start") then
+        echo "is start"
+else
+        echo "is nothing"
+fi
+~
+"abc" 6L, 85C written                            
+[cc@localhost 5]$ ./abc
+is nothing
+[cc@localhost 5]$ ./abc start
+is start
+[cc@localhost 5]$ vim abc
+#! /bin/sh
+if [ -f abc.c ]; then
+        echo 'have abc.c'
+else
+        echo 'have not abc.c'
+fi
+~
+"abc" 6L, 83C written                            
+[cc@localhost 5]$ ./abc
+have not abc.c
+[cc@localhost 5]$ mv abc abc.c
+[cc@localhost 5]$ ./abc
+-bash: ./abc: No such file or directory
+[cc@localhost 5]$ ./abc.c
+have abc.c
+[cc@localhost 5]$ vim abc
+#! /bin/sh
+if [ -d abc.c ]; then
+        echo 'have abc.c'
+else
+        echo 'have not abc.c'
+fi
+~
+"abc" 6L, 83C written                            
+[cc@localhost 5]$ ./abc
+have abc.c
+[cc@localhost 5]$ vim abc
+#! /bin/sh
+times=0
+while [ "$times" != "5" ];
+do
+        echo "$times"
+        times=$[times + 1]
+done
+~
+"abc" 7L, 89C written                            
+[cc@localhost 5]$ ./abc
+0
+1
+2
+3
+4
+[cc@localhost 5]$ vim abc
+#! /bin/sh
+case "$1" in
+start)
+        echo "is start"
+        ;;
+stop)
+        echo "is stop"
+        ;;
+*)
+        echo "is nothing"
+esac
+~
+"abc" 11L, 105C written                          
+[cc@localhost 5]$ ./abc
+is nothing
+[cc@localhost 5]$ ./abc start
+is start
+[cc@localhost 5]$ ./abc stop
+is stop
+[cc@localhost 5]$ ./abc begin
+is nothing
+[cc@localhost 5]$ vim abc
+#! /bin/sh
+sum=0
+for i in 1 2 3 4 5
+do
+        sum=$[$sum + i]
+        echo $sum
+done
+~       
+"abc" 7L, 72C written                            
+[cc@localhost 5]$ ./abc
+1
+3
+6
+10
+15
+[cc@localhost 5]$ vim cba
+#! /bin/sh
+./abc
+echo $?
+~
+"cba" 3L, 25C written                            
+[cc@localhost 5]$ ./cba
+-bash: ./cba: Permission denied
+[cc@localhost 5]$ vim abc
+#! /bin/sh
+exit 9
+sum=0
+for i in 1 2 3 4 5
+do
+        sum=$[$sum + i]
+        echo $sum
+done
+~
+"abc" 8L, 79C written
+[cc@localhost 5]$ ls
+a  -a  abc  abc.c  a.c  cba
+[cc@localhost 5]$ vim cba
+#! /bin/sh
+./abc
+        echo $?
+~
+"cba" 3L, 26C written                            
+[cc@localhost 5]$ chmod +x cba
+[cc@localhost 5]$ ./cba
+9
+[cc@localhost 5]$ vim abc
+exit 9
+sum=0
+for i in 1 2 3 4 5
+do
+        sum=$[$sum + i]
+        echo $sum
+#! /bin/sh
+function func
+{
+        echo "function is begin"
+        a=$1
+        b=$2
+        echo `expr $a + $b`
+}
+func 3 5
+~
+"abc" 9L, 97C written                            
+[cc@localhost 5]$ ./abc
+function is begin
+8
+[cc@localhost 5]$ vim abc
+#! /bin/sh
+function func
+{
+        echo "function is begin"
+        a=$1
+        b=$2
+        return `expr $a + $b`
+}
+func 3 5
+var1=$?
+echo $var1
+~
+"abc" 11L, 118C written                          
+[cc@localhost 5]$ ./abc
+function is begin
+8
+[cc@localhost 5]$ vim abc
+#! /bin/sh
+function func
+{
+        echo "function is begin"
+        a=$1
+        b=$2
+        return `expr $a + $b`
+}
+read a1
+read a2
+func $a1 $a2
+
+var1=$?
+echo $var1
+~
+"abc" 14L, 139C written                          
+[cc@localhost 5]$ ./abc
+2
+5
+function is begin
+7
+[cc@localhost 5]$ vim mydaemon
+if ( test "$1" = "" ) then
+        echo "mydaemon [start] [stop] [version]"
+        exit 0
+fi
+if (test "$1" = "status" ) then
+        if ( test "$1" = "") then
+                echo 'not run'
+        else
+                echo 'run'
+        fi
+        exit 0
+fi
+if ( test "$1" = "start" ) then
+        if( test "$PID" = "") then
+                ./mydaemond
+        fi
+        exit 0
+fi
+if ( test "$1" = "stop" ) then
+        if ( test "$PID" != "" ) then
+                kill $PID
+        fi
+        exit 0
+"mydaemon" 31L, 519C   

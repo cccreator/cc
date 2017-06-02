@@ -1,0 +1,1307 @@
+[root@localhost 4]# whoami
+root
+[root@localhost 4]# cd
+[root@localhost ~]# ls -a
+.                .bash_logout   install.log         .xauth9jGLIj
+..               .bash_profile  install.log.syslog  .xauthqZJWlA
+anaconda-ks.cfg  .bashrc        .mysql_secret
+.bash_history    .cshrc         .tcshrc
+[root@localhost ~]# cat .mysql_secret
+# The random password set for the root user at Wed Mar  1 04:54:36 2017 (local time): v_ExRHNmkSsGj0ci
+
+[root@localhost ~]# service mysql start
+Starting MySQL.Logging to '/var/lib/mysql/localhost.localdomain.err'.
+.... SUCCESS! 
+[root@localhost ~]# mysql -u root -p
+Enter password: 
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 1
+Server version: 5.6.35
+
+Copyright (c) 2000, 2016, Oracle and/or its affiliates. All rights reserved.
+
+Oracle is a registered trademark of Oracle Corporation and/or its
+affiliates. Other names may be trademarks of their respective
+owners.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+mysql> set password=password('222');
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> select 1
+    -> ;
++---+
+| 1 |
++---+
+| 1 |
++---+
+1 row in set (0.00 sec)
+
+mysql> quit
+Bye
+[root@localhost ~]# mysql -u root -p
+Enter password: 
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 2
+Server version: 5.6.35 MySQL Community Server (GPL)
+
+Copyright (c) 2000, 2016, Oracle and/or its affiliates. All rights reserved.
+
+Oracle is a registered trademark of Oracle Corporation and/or its
+affiliates. Other names may be trademarks of their respective
+owners.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+mysql> CREATE DATABASE db1 CHARACTER SET utf8;
+Query OK, 1 row affected (0.02 sec)
+
+mysql> USE db1;
+Database changed
+mysql> quit;
+Bye
+[root@localhost ~]# mysql -u root -p
+Enter password: 
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 3
+Server version: 5.6.35 MySQL Community Server (GPL)
+
+Copyright (c) 2000, 2016, Oracle and/or its affiliates. All rights reserved.
+
+Oracle is a registered trademark of Oracle Corporation and/or its
+affiliates. Other names may be trademarks of their respective
+owners.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+mysql> show databases;
++--------------------+
+| Database           |
++--------------------+
+| information_schema |
+| db1                |
+| mysql              |
+| performance_schema |
+| test               |
++--------------------+
+5 rows in set (0.01 sec)
+
+mysql> use mysql
+Reading table information for completion of table and column names
+You can turn off this feature to get a quicker startup with -A
+
+Database changed
+mysql> use mysql;
+Database changed
+mysql> GRANT ALL ON db1.* TO dbuser1 IDENTIFIED BY 'dbuser1';
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> quit
+Bye
+[root@localhost ~]# mysql -u dbuser1 -p
+Enter password: 
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 5
+Server version: 5.6.35 MySQL Community Server (GPL)
+
+Copyright (c) 2000, 2016, Oracle and/or its affiliates. All rights reserved.
+
+Oracle is a registered trademark of Oracle Corporation and/or its
+affiliates. Other names may be trademarks of their respective
+owners.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+mysql> use db1;
+Database changed
+mysql> CREATE TABLE table1 (name varchar(100), sex varchar(10), age int, class varchar(100));
+Query OK, 0 rows affected (0.12 sec)
+
+mysql> show tables;
++---------------+
+| Tables_in_db1 |
++---------------+
+| table1        |
++---------------+
+1 row in set (0.00 sec)
+
+mysql>
+[root@localhost ~]# mysql -u userdb1 -p
+Enter password: 
+ERROR 1045 (28000): Access denied for user 'userdb1'@'localhost' (using password: YES)
+[root@localhost ~]# mysql -u dbuser1 -p
+Enter password: 
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 6
+Server version: 5.6.35 MySQL Community Server (GPL)
+
+Copyright (c) 2000, 2016, Oracle and/or its affiliates. All rights reserved.
+
+Oracle is a registered trademark of Oracle Corporation and/or its
+affiliates. Other names may be trademarks of their respective
+owners.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+mysql> show table;
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '' at line 1
+mysql> use db1
+Reading table information for completion of table and column names
+You can turn off this feature to get a quicker startup with -A
+
+Database changed
+mysql> use db1;
+Database changed
+mysql> show databases;
++--------------------+
+| Database           |
++--------------------+
+| information_schema |
+| db1                |
+| test               |
++--------------------+
+3 rows in set (0.00 sec)
+
+mysql> show table;
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '' at line 1
+mysql> show tables;
++---------------+
+| Tables_in_db1 |
++---------------+
+| table1        |
++---------------+
+1 row in set (0.00 sec)
+
+mysql> CREATE TABLE table2(ID int(11) NOT NULL auto_increment, name varchar(100), age int, PRIMARY KEY(ID));
+Query OK, 0 rows affected (0.04 sec)
+
+mysql> SHOW TABLES;
++---------------+
+| Tables_in_db1 |
++---------------+
+| table1        |
+| table2        |
++---------------+
+2 rows in set (0.00 sec)
+
+mysql> DESC TABLE1
+    -> desc table1;
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'desc table1' at line 2
+mysql> desc tables;
+ERROR 1146 (42S02): Table 'db1.tables' doesn't exist
+mysql> desc table1;
++-------+--------------+------+-----+---------+-------+
+| Field | Type         | Null | Key | Default | Extra |
++-------+--------------+------+-----+---------+-------+
+| name  | varchar(100) | YES  |     | NULL    |       |
+| sex   | varchar(10)  | YES  |     | NULL    |       |
+| age   | int(11)      | YES  |     | NULL    |       |
+| class | varchar(100) | YES  |     | NULL    |       |
++-------+--------------+------+-----+---------+-------+
+4 rows in set (0.01 sec)
+
+mysql> desc table1;
++-------+--------------+------+-----+---------+-------+
+| Field | Type         | Null | Key | Default | Extra |
++-------+--------------+------+-----+---------+-------+
+| name  | varchar(100) | YES  |     | NULL    |       |
+| sex   | varchar(10)  | YES  |     | NULL    |       |
+| age   | int(11)      | YES  |     | NULL    |       |
+| class | varchar(100) | YES  |     | NULL    |       |
++-------+--------------+------+-----+---------+-------+
+4 rows in set (0.00 sec)
+
+mysql> desc table2;
++-------+--------------+------+-----+---------+----------------+
+| Field | Type         | Null | Key | Default | Extra          |
++-------+--------------+------+-----+---------+----------------+
+| ID    | int(11)      | NO   | PRI | NULL    | auto_increment |
+| name  | varchar(100) | YES  |     | NULL    |                |
+| age   | int(11)      | YES  |     | NULL    |                |
++-------+--------------+------+-----+---------+----------------+
+3 rows in set (0.00 sec)
+
+mysql> INSERT INTO table1(name, sex, age, class) VALUES ('zhangsan', 'nan', 20, 'c++');
+Query OK, 1 row affected (0.01 sec)
+
+mysql> desc table2;
++-------+--------------+------+-----+---------+----------------+
+| Field | Type         | Null | Key | Default | Extra          |
++-------+--------------+------+-----+---------+----------------+
+| ID    | int(11)      | NO   | PRI | NULL    | auto_increment |
+| name  | varchar(100) | YES  |     | NULL    |                |
+| age   | int(11)      | YES  |     | NULL    |                |
++-------+--------------+------+-----+---------+----------------+
+3 rows in set (0.00 sec)
+
+mysql> INSERT INTO table2(name, age) VALUES('liudehua', 40);
+Query OK, 1 row affected (0.00 sec)
+
+mysql> desc table1;
++-------+--------------+------+-----+---------+-------+
+| Field | Type         | Null | Key | Default | Extra |
++-------+--------------+------+-----+---------+-------+
+| name  | varchar(100) | YES  |     | NULL    |       |
+| sex   | varchar(10)  | YES  |     | NULL    |       |
+| age   | int(11)      | YES  |     | NULL    |       |
+| class | varchar(100) | YES  |     | NULL    |       |
++-------+--------------+------+-----+---------+-------+
+4 rows in set (0.00 sec)
+
+mysql> desc talbe2;
+ERROR 1146 (42S02): Table 'db1.talbe2' doesn't exist
+mysql> desc table2;
++-------+--------------+------+-----+---------+----------------+
+| Field | Type         | Null | Key | Default | Extra          |
++-------+--------------+------+-----+---------+----------------+
+| ID    | int(11)      | NO   | PRI | NULL    | auto_increment |
+| name  | varchar(100) | YES  |     | NULL    |                |
+| age   | int(11)      | YES  |     | NULL    |                |
++-------+--------------+------+-----+---------+----------------+
+3 rows in set (0.00 sec)
+
+mysql> SELECT*FROM table1;
++----------+------+------+-------+
+| name     | sex  | age  | class |
++----------+------+------+-------+
+| zhangsan | nan  |   20 | c++   |
++----------+------+------+-------+
+1 row in set (0.00 sec)
+
+mysql> SELECT*FROM table2;
++----+----------+------+
+| ID | name     | age  |
++----+----------+------+
+|  1 | liudehua |   40 |
++----+----------+------+
+1 row in set (0.00 sec)
+
+mysql> INSERT INTO table2(name, age) VALUES ('ZHANGXUEYOU', 50);
+Query OK, 1 row affected (0.01 sec)
+
+mysql> SELECT*FROM table2;
++----+-------------+------+
+| ID | name        | age  |
++----+-------------+------+
+|  1 | liudehua    |   40 |
+|  2 | ZHANGXUEYOU |   50 |
++----+-------------+------+
+2 rows in set (0.00 sec)
+
+mysql> SELECT*FROM table1;
++----------+------+------+-------+
+| name     | sex  | age  | class |
++----------+------+------+-------+
+| zhangsan | nan  |   20 | c++   |
++----------+------+------+-------+
+1 row in set (0.00 sec)
+
+mysql> INSERT INTO table1(name, sex,age,clsaa) VALUES ('zhangsi', 'nv', 20, 'java');
+ERROR 1054 (42S22): Unknown column 'clsaa' in 'field list'
+mysql> INSERT INTO table1(name, sex, age, clsaa) VALUES ('zhangsi', 'nv', 20, 'java');
+ERROR 1054 (42S22): Unknown column 'clsaa' in 'field list'
+mysql> INSERT INTO table1 (name, sex, age, clsaa) VALUES ('zhangsi', 'nv', 20, 'java');
+ERROR 1054 (42S22): Unknown column 'clsaa' in 'field list'
+mysql> INSERT INTO table1 (name, sex, age, class) VALUES ('zhangsi', 'nv', 20, 'java');
+Query OK, 1 row affected (0.00 sec)
+
+mysql> SELECT*FROM table1;
++----------+------+------+-------+
+| name     | sex  | age  | class |
++----------+------+------+-------+
+| zhangsan | nan  |   20 | c++   |
+| zhangsi  | nv   |   20 | java  |
++----------+------+------+-------+
+2 rows in set (0.00 sec)
+
+mysql> SELET name FROM table1;
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'SELET name FROM table1' at line 1
+mysql> SELECT name FROM table1;
++----------+
+| name     |
++----------+
+| zhangsan |
+| zhangsi  |
++----------+
+2 rows in set (0.00 sec)
+
+mysql> SELECT name, sex FROM table1;
++----------+------+
+| name     | sex  |
++----------+------+
+| zhangsan | nan  |
+| zhangsi  | nv   |
++----------+------+
+2 rows in set (0.00 sec)
+
+mysql> SELECT sex, name FROM table1;
++------+----------+
+| sex  | name     |
++------+----------+
+| nan  | zhangsan |
+| nv   | zhangsi  |
++------+----------+
+2 rows in set (0.00 sec)
+
+mysql> INSERT INTO table1 (name, sex, age, class) VALUES ('wangwu', 'nv', 17, 'c');
+Query OK, 1 row affected (0.00 sec)
+
+mysql> INSERT INTO table1 (name, sex, age, class) VALUES ('chenliu', 'nv', 19, 'c#');
+Query OK, 1 row affected (0.01 sec)
+
+mysql> INSERT INTO table1 (name, sex, age, class) VALUES ('shanqi', 'nv', 21, 'c++');
+Query OK, 1 row affected (0.00 sec)
+
+mysql> INSERT INTO table1 (name, sex, age, class) VALUES ('zhaoba', 'nv', 23, 'java');
+Query OK, 1 row affected (0.00 sec)
+
+mysql> INSERT INTO table1 (name, sex, age, class) VALUES ('panjiu', 'nan', 25, 'pythen'); 
+Query OK, 1 row affected (0.01 sec)
+
+mysql> INSERT INTO table1 (name, sex, age, class) VALUES ('sishi', 'nv', 27, 'g');
+Query OK, 1 row affected (0.00 sec)
+
+mysql> INSERT INTO table1 (name, sex, age, class) VALUES ('jiashiyi', 'nv', 28, 'c');
+Query OK, 1 row affected (0.01 sec)
+
+mysql> SECECT*FROM table1;
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'SECECT*FROM table1' at line 1
+mysql> SELECT*FROM table1;
++----------+------+------+--------+
+| name     | sex  | age  | class  |
++----------+------+------+--------+
+| zhangsan | nan  |   20 | c++    |
+| zhangsi  | nv   |   20 | java   |
+| wangwu   | nv   |   17 | c      |
+| chenliu  | nv   |   19 | c#     |
+| shanqi   | nv   |   21 | c++    |
+| zhaoba   | nv   |   23 | java   |
+| panjiu   | nan  |   25 | pythen |
+| sishi    | nv   |   27 | g      |
+| jiashiyi | nv   |   28 | c      |
++----------+------+------+--------+
+9 rows in set (0.00 sec)
+
+mysql> quit
+Bye
+[root@localhost ~]# su cc
+[cc@localhost root]$ ls
+ls: cannot open directory .: Permission denied
+[cc@localhost root]$ cd
+[cc@localhost ~]$ ls
+1  3  brasero-0.iso  Desktop    Downloads  gcc-4.5.1  Pictures  Templates
+2  4  brasero.iso    Documents  gcc        Music      Public    Videos
+[cc@localhost ~]$ cd 3
+[cc@localhost 3]$ cd ../4
+[cc@localhost 4]$ ls
+my.sql.txt
+[cc@localhost 4]$ mv my.sql.txt my.sql
+[cc@localhost 4]$ ls
+my.sql
+[cc@localhost 4]$ cat my.sql
+INSERT INTO table1 (name, sex, age, class) VALUES ('wangwu', 'nv', 17, 'c');
+INSERT INTO table1 (name, sex, age, class) VALUES ('chenliu', 'nv', 19, 'c#');
+INSERT INTO table1 (name, sex, age, class) VALUES ('shanqi', 'nv', 21, 'c++');
+INSERT INTO table1 (name, sex, age, class) VALUES ('zhaoba', 'nv', 23, 'java');
+INSERT INTO table1 (name, sex, age, class) VALUES ('panjiu', 'nan', 25, 'pythen');
+INSERT INTO table1 (name, sex, age, class) VALUES ('sishi', 'nv', 27, 'g');
+INSERT INTO table1 (name, sex, age, class) VALUES ('jiashiyi', 'nv', 28, 'c');
+[cc@localhost 4]$ cd
+[cc@localhost ~]$ mysql -u dbuser1 -p
+Enter password: 
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 7
+Server version: 5.6.35 MySQL Community Server (GPL)
+
+Copyright (c) 2000, 2016, Oracle and/or its affiliates. All rights reserved.
+
+Oracle is a registered trademark of Oracle Corporation and/or its
+affiliates. Other names may be trademarks of their respective
+owners.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+mysql> set names utf8;
+Query OK, 0 rows affected (0.00 sec)
+
+mysql> source my.sql;
+ERROR: 
+Failed to open file 'my.sql', error: 2
+mysql> source my.sql;
+ERROR: 
+Failed to open file 'my.sql', error: 2
+mysql> quit
+Bye
+[cc@localhost ~]$ cd 4
+[cc@localhost 4]$ ls
+my.sql  my.sql.txt
+[cc@localhost 4]$ rm my.sql
+[cc@localhost 4]$ mv my.sql.txt my.sql
+[cc@localhost 4]$ ls
+my.sql
+[cc@localhost 4]$ mysql -u dbuser1 -p
+Enter password: 
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 8
+Server version: 5.6.35 MySQL Community Server (GPL)
+
+Copyright (c) 2000, 2016, Oracle and/or its affiliates. All rights reserved.
+
+Oracle is a registered trademark of Oracle Corporation and/or its
+affiliates. Other names may be trademarks of their respective
+owners.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+mysql> source my.sql;
+ERROR 1046 (3D000): No database selected
+ERROR 1046 (3D000): No database selected
+ERROR 1046 (3D000): No database selected
+mysql> use db1;
+Reading table information for completion of table and column names
+You can turn off this feature to get a quicker startup with -A
+
+Database changed
+mysql> use db1;
+Database changed
+mysql> source my.sql;
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.00 sec)
+
+Query OK, 1 row affected (0.01 sec)
+
+mysql> SELECT*FROM table1;
++----------+------+------+--------+
+| name     | sex  | age  | class  |
++----------+------+------+--------+
+| zhangsan | nan  |   20 | c++    |
+| zhangsi  | nv   |   20 | java   |
+| wangwu   | nv   |   17 | c      |
+| chenliu  | nv   |   19 | c#     |
+| shanqi   | nv   |   21 | c++    |
+| zhaoba   | nv   |   23 | java   |
+| panjiu   | nan  |   25 | pythen |
+| sishi    | nv   |   27 | g      |
+| jiashiyi | nv   |   28 | c      |
+| twile    | nv   |   17 | c      |
+| shisan   | nv   |   19 | c#     |
+| shisi    | nv   |   21 | c++    |
++----------+------+------+--------+
+12 rows in set (0.00 sec)
+
+
+mysql> SELECT*FROM table1 LIMIT 0,1;
++----------+------+------+-------+
+| name     | sex  | age  | class |
++----------+------+------+-------+
+| zhangsan | nan  |   20 | c++   |
++----------+------+------+-------+
+1 row in set (0.00 sec)
+
+mysql> SELECT*FROM table1 LIMIT 0,3;
++----------+------+------+-------+
+| name     | sex  | age  | class |
++----------+------+------+-------+
+| zhangsan | nan  |   20 | c++   |
+| zhangsi  | nv   |   20 | java  |
+| wangwu   | nv   |   17 | c     |
++----------+------+------+-------+
+3 rows in set (0.00 sec)
+
+mysql> SELECT*FROM table1 LIMIT 2,3;
++---------+------+------+-------+
+| name    | sex  | age  | class |
++---------+------+------+-------+
+| wangwu  | nv   |   17 | c     |
+| chenliu | nv   |   19 | c#    |
+| shanqi  | nv   |   21 | c++   |
++---------+------+------+-------+
+3 rows in set (0.00 sec)
+
+mysql> SELECT*FROM table1;
++----------+------+------+--------+
+| name     | sex  | age  | class  |
++----------+------+------+--------+
+| zhangsan | nan  |   20 | c++    |
+| zhangsi  | nv   |   20 | java   |
+| wangwu   | nv   |   17 | c      |
+| chenliu  | nv   |   19 | c#     |
+| shanqi   | nv   |   21 | c++    |
+| zhaoba   | nv   |   23 | java   |
+| panjiu   | nan  |   25 | pythen |
+| sishi    | nv   |   27 | g      |
+| jiashiyi | nv   |   28 | c      |
+| twile    | nv   |   17 | c      |
+| shisan   | nv   |   19 | c#     |
+| shisi    | nv   |   21 | c++    |
+| chenliu  | nv   |   19 | c#     |
+| shanqi   | nv   |   21 | c++    |
+| zhaoba   | nv   |   23 | java   |
+| panjiu   | nan  |   25 | pythen |
+| sishi    | nv   |   27 | g      |
+| jiashiyi | nv   |   28 | c      |
++----------+------+------+--------+
+18 rows in set (0.00 sec)
+
+mysql> SELECT*FROM table1 WHERE age>21;
++----------+------+------+--------+
+| name     | sex  | age  | class  |
++----------+------+------+--------+
+| zhaoba   | nv   |   23 | java   |
+| panjiu   | nan  |   25 | pythen |
+| sishi    | nv   |   27 | g      |
+| jiashiyi | nv   |   28 | c      |
+| zhaoba   | nv   |   23 | java   |
+| panjiu   | nan  |   25 | pythen |
+| sishi    | nv   |   27 | g      |
+| jiashiyi | nv   |   28 | c      |
++----------+------+------+--------+
+8 rows in set (0.04 sec)
+
+mysql> SELECT*FROM table1 WHERE class=
+    -> 'c++';
++----------+------+------+-------+
+| name     | sex  | age  | class |
++----------+------+------+-------+
+| zhangsan | nan  |   20 | c++   |
+| shanqi   | nv   |   21 | c++   |
+| shisi    | nv   |   21 | c++   |
+| shanqi   | nv   |   21 | c++   |
++----------+------+------+-------+
+4 rows in set (0.00 sec)
+
+mysql> SELECT*FROM table1 WHERE sex='nv';
++----------+------+------+-------+
+| name     | sex  | age  | class |
++----------+------+------+-------+
+| zhangsi  | nv   |   20 | java  |
+| wangwu   | nv   |   17 | c     |
+| chenliu  | nv   |   19 | c#    |
+| shanqi   | nv   |   21 | c++   |
+| zhaoba   | nv   |   23 | java  |
+| sishi    | nv   |   27 | g     |
+| jiashiyi | nv   |   28 | c     |
+| twile    | nv   |   17 | c     |
+| shisan   | nv   |   19 | c#    |
+| shisi    | nv   |   21 | c++   |
+| chenliu  | nv   |   19 | c#    |
+| shanqi   | nv   |   21 | c++   |
+| zhaoba   | nv   |   23 | java  |
+| sishi    | nv   |   27 | g     |
+| jiashiyi | nv   |   28 | c     |
++----------+------+------+-------+
+15 rows in set (0.00 sec)
+
+mysql> SELECT*FROM table1 WHERE class='c++' AND age>23;
+Empty set (0.00 sec)
+
+mysql> SELECT*FROM table1 WHERE class='c++' AND age>13;
++----------+------+------+-------+
+| name     | sex  | age  | class |
++----------+------+------+-------+
+| zhangsan | nan  |   20 | c++   |
+| shanqi   | nv   |   21 | c++   |
+| shisi    | nv   |   21 | c++   |
+| shanqi   | nv   |   21 | c++   |
++----------+------+------+-------+
+4 rows in set (0.00 sec)
+
+mysql> SELECT*FROM table1 WHERE class='c++' AND age=21;
++--------+------+------+-------+
+| name   | sex  | age  | class |
++--------+------+------+-------+
+| shanqi | nv   |   21 | c++   |
+| shisi  | nv   |   21 | c++   |
+| shanqi | nv   |   21 | c++   |
++--------+------+------+-------+
+3 rows in set (0.00 sec)
+
+mysql> SELECT*FROM table1 WHERE class='c++' AND age=21 OR age=20;
++----------+------+------+-------+
+| name     | sex  | age  | class |
++----------+------+------+-------+
+| zhangsan | nan  |   20 | c++   |
+| zhangsi  | nv   |   20 | java  |
+| shanqi   | nv   |   21 | c++   |
+| shisi    | nv   |   21 | c++   |
+| shanqi   | nv   |   21 | c++   |
++----------+------+------+-------+
+5 rows in set (0.00 sec)
+mysql> SELECT*FROM table1 WHERE class LIKE 'c%';
++----------+------+------+-------+
+| name     | sex  | age  | class |
++----------+------+------+-------+
+| zhangsan | nan  |   20 | c++   |
+| wangwu   | nv   |   17 | c     |
+| chenliu  | nv   |   19 | c#    |
+| shanqi   | nv   |   21 | c++   |
+| jiashiyi | nv   |   28 | c     |
+| twile    | nv   |   17 | c     |
+| shisan   | nv   |   19 | c#    |
+| shisi    | nv   |   21 | c++   |
+| chenliu  | nv   |   19 | c#    |
+| shanqi   | nv   |   21 | c++   |
+| jiashiyi | nv   |   28 | c     |
++----------+------+------+-------+
+11 rows in set (0.00 sec)
+
+mysql> SELECT*FROM table1 WHERE class LIKE 'z%';
+Empty set (0.00 sec)
+
+mysql> SELECT*FROM table1 WHERE age LIKE '1%';
++---------+------+------+-------+
+| name    | sex  | age  | class |	
++---------+------+------+-------+
+| wangwu  | nv   |   17 | c     |
+| chenliu | nv   |   19 | c#    |
+| twile   | nv   |   17 | c     |
+| shisan  | nv   |   19 | c#    |
+| chenliu | nv   |   19 | c#    |
++---------+------+------+-------+
+5 rows in set (0.01 sec)
+mysql> SELECT*FROM table1;
++----------+------+------+--------+
+| name     | sex  | age  | class  |
++----------+------+------+--------+
+| zhangsan | nan  |   20 | c++    |
+| zhangsi  | nv   |   20 | java   |
+| wangwu   | nv   |   17 | c      |
+| chenliu  | nv   |   19 | c#     |
+| shanqi   | nv   |   21 | c++    |
+| zhaoba   | nv   |   23 | java   |
+| panjiu   | nan  |   25 | pythen |
+| sishi    | nv   |   27 | g      |
+| jiashiyi | nv   |   28 | c      |
+| twile    | nv   |   17 | c      |
+| shisan   | nv   |   19 | c#     |
+| shisi    | nv   |   21 | c++    |
+| chenliu  | nv   |   19 | c#     |
+| shanqi   | nv   |   21 | c++    |
+| zhaoba   | nv   |   23 | java   |
+| panjiu   | nan  |   25 | pythen |
+| sishi    | nv   |   27 | g      |
+| jiashiyi | nv   |   28 | c      |
++----------+------+------+--------+
+18 rows in set (0.00 sec)
+
+mysql> SELECT*FROM table1 WHERE age in(20,25,19);
++----------+------+------+--------+
+| name     | sex  | age  | class  |
++----------+------+------+--------+
+| zhangsan | nan  |   20 | c++    |
+| zhangsi  | nv   |   20 | java   |
+| chenliu  | nv   |   19 | c#     |
+| panjiu   | nan  |   25 | pythen |
+| shisan   | nv   |   19 | c#     |
+| chenliu  | nv   |   19 | c#     |
+| panjiu   | nan  |   25 | pythen |
++----------+------+------+--------+
+7 rows in set (0.01 sec)
+
+mysql> SELECT*FROM table1 WHERE age NOT in(20,25,19);
++----------+------+------+-------+
+| name     | sex  | age  | class |
++----------+------+------+-------+
+| wangwu   | nv   |   17 | c     |
+| shanqi   | nv   |   21 | c++   |
+| zhaoba   | nv   |   23 | java  |
+| sishi    | nv   |   27 | g     |
+| jiashiyi | nv   |   28 | c     |
+| twile    | nv   |   17 | c     |
+| shisi    | nv   |   21 | c++   |
+| shanqi   | nv   |   21 | c++   |
+| zhaoba   | nv   |   23 | java  |
+| sishi    | nv   |   27 | g     |
+| jiashiyi | nv   |   28 | c     |
++----------+------+------+-------+
+11 rows in set (0.00 sec)
+
+mysql> SELECT*FROM table1 WHERE age=20;
++----------+------+------+-------+
+| name     | sex  | age  | class |
++----------+------+------+-------+
+| zhangsan | nan  |   20 | c++   |
+| zhangsi  | nv   |   20 | java  |
++----------+------+------+-------+
+2 rows in set (0.00 sec)
+
+mysql> SELECT*FROM table1 WHERE age<>20;
++----------+------+------+--------+
+| name     | sex  | age  | class  |
++----------+------+------+--------+
+| wangwu   | nv   |   17 | c      |
+| chenliu  | nv   |   19 | c#     |
+| shanqi   | nv   |   21 | c++    |
+| zhaoba   | nv   |   23 | java   |
+| panjiu   | nan  |   25 | pythen |
+| sishi    | nv   |   27 | g      |
+| jiashiyi | nv   |   28 | c      |
+| twile    | nv   |   17 | c      |
+| shisan   | nv   |   19 | c#     |
+| shisi    | nv   |   21 | c++    |
+| chenliu  | nv   |   19 | c#     |
+| shanqi   | nv   |   21 | c++    |
+| zhaoba   | nv   |   23 | java   |
+| panjiu   | nan  |   25 | pythen |
+| sishi    | nv   |   27 | g      |
+| jiashiyi | nv   |   28 | c      |
++----------+------+------+--------+
+16 rows in set (0.00 sec)
+
+mysql> SELECT*FROM table1 WHERE age NOT LIKE '1%';
++----------+------+------+--------+
+| name     | sex  | age  | class  |
++----------+------+------+--------+
+| zhangsan | nan  |   20 | c++    |
+| zhangsi  | nv   |   20 | java   |
+| shanqi   | nv   |   21 | c++    |
+| zhaoba   | nv   |   23 | java   |
+| panjiu   | nan  |   25 | pythen |
+| sishi    | nv   |   27 | g      |
+| jiashiyi | nv   |   28 | c      |
+| shisi    | nv   |   21 | c++    |
+| shanqi   | nv   |   21 | c++    |
+| zhaoba   | nv   |   23 | java   |
+| panjiu   | nan  |   25 | pythen |
+| sishi    | nv   |   27 | g      |
+| jiashiyi | nv   |   28 | c      |
++----------+------+------+--------+
+13 rows in set (0.01 sec)
+
+mysql> SELECT*FROM table1 WHERE age NOT LIKE '%2';
++----------+------+------+--------+
+| name     | sex  | age  | class  |
++----------+------+------+--------+
+| zhangsan | nan  |   20 | c++    |
+| zhangsi  | nv   |   20 | java   |
+| wangwu   | nv   |   17 | c      |
+| chenliu  | nv   |   19 | c#     |
+| shanqi   | nv   |   21 | c++    |
+| zhaoba   | nv   |   23 | java   |
+| panjiu   | nan  |   25 | pythen |
+| sishi    | nv   |   27 | g      |
+| jiashiyi | nv   |   28 | c      |
+| twile    | nv   |   17 | c      |
+| shisan   | nv   |   19 | c#     |
+| shisi    | nv   |   21 | c++    |
+| chenliu  | nv   |   19 | c#     |
+| shanqi   | nv   |   21 | c++    |
+| zhaoba   | nv   |   23 | java   |
+| panjiu   | nan  |   25 | pythen |
+| sishi    | nv   |   27 | g      |
+| jiashiyi | nv   |   28 | c      |
++----------+------+------+--------+
+18 rows in set (0.00 sec)
+
+mysql> SELECT*FROM table1 WHERE age NOT LIKE '%0';
++----------+------+------+--------+
+| name     | sex  | age  | class  |
++----------+------+------+--------+
+| wangwu   | nv   |   17 | c      |
+| chenliu  | nv   |   19 | c#     |
+| shanqi   | nv   |   21 | c++    |
+| zhaoba   | nv   |   23 | java   |
+| panjiu   | nan  |   25 | pythen |
+| sishi    | nv   |   27 | g      |
+| jiashiyi | nv   |   28 | c      |
+| twile    | nv   |   17 | c      |
+| shisan   | nv   |   19 | c#     |
+| shisi    | nv   |   21 | c++    |
+| chenliu  | nv   |   19 | c#     |
+| shanqi   | nv   |   21 | c++    |
+| zhaoba   | nv   |   23 | java   |
+| panjiu   | nan  |   25 | pythen |
+| sishi    | nv   |   27 | g      |
+| jiashiyi | nv   |   28 | c      |
++----------+------+------+--------+
+16 rows in set (0.00 sec)
+
+mysql> SELECT name xingming, sex xingbie, age nianling FROM table1;
++----------+---------+----------+
+| xingming | xingbie | nianling |
++----------+---------+----------+
+| zhangsan | nan     |       20 |
+| zhangsi  | nv      |       20 |
+| wangwu   | nv      |       17 |
+| chenliu  | nv      |       19 |
+| shanqi   | nv      |       21 |
+| zhaoba   | nv      |       23 |
+| panjiu   | nan     |       25 |
+| sishi    | nv      |       27 |
+| jiashiyi | nv      |       28 |
+| twile    | nv      |       17 |
+| shisan   | nv      |       19 |
+| shisi    | nv      |       21 |
+| chenliu  | nv      |       19 |
+| shanqi   | nv      |       21 |
+| zhaoba   | nv      |       23 |
+| panjiu   | nan     |       25 |
+| sishi    | nv      |       27 |
+| jiashiyi | nv      |       28 |
++----------+---------+----------+
+18 rows in set (0.00 sec)
+
+mysql> SELECT xingming name, singbie sex, nianling age FROM table1;
+ERROR 1054 (42S22): Unknown column 'xingming' in 'field list'
+mysql> SELECT xingming name, xingbie sex, nianling age FROM table1;
+ERROR 1054 (42S22): Unknown column 'xingming' in 'field list'
+mysql> SELECT xingbie sex, nianling age FROM table1;
+ERROR 1054 (42S22): Unknown column 'xingbie' in 'field list'
+mysql> SELECT a.name, a.sex FROM table1 a;
++----------+------+
+| name     | sex  |
++----------+------+
+| zhangsan | nan  |
+| zhangsi  | nv   |
+| wangwu   | nv   |
+| chenliu  | nv   |
+| shanqi   | nv   |
+| zhaoba   | nv   |
+| panjiu   | nan  |
+| sishi    | nv   |
+| jiashiyi | nv   |
+| twile    | nv   |
+| shisan   | nv   |
+| shisi    | nv   |
+| chenliu  | nv   |
+| shanqi   | nv   |
+| zhaoba   | nv   |
+| panjiu   | nan  |
+| sishi    | nv   |
+| jiashiyi | nv   |
++----------+------+
+18 rows in set (0.00 sec)
+
+mysql> SELECT SUM(age) FROM table1;
++----------+
+| SUM(age) |
++----------+
+|      400 |
++----------+
+1 row in set (0.04 sec)
+
+mysql> SELECT MAX(age) FROM table1;
++----------+
+| MAX(age) |
++----------+
+|       28 |
++----------+
+1 row in set (0.00 sec)
+
+mysql> SELECT MAX(age) name FROM table1;
++------+
+| name |
++------+
+|   28 |
++------+
+1 row in set (0.00 sec)
+
+mysql> SELECT WHERE age> MAX(age) name FROM table1;
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'WHERE age> MAX(age) name FROM table1' at line 1
+mysql> SELECT MAX(age) name FROM table1 WHERE age>MAX(age);
+ERROR 1111 (HY000): Invalid use of group function
+mysql> SELECT MAX(age) AND name FROM table1 WHERE ;
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '' at line 1
+mysql> SELECT MAX(age) AND name FROM table1;
++-------------------+
+| MAX(age) AND name |
++-------------------+
+|                 0 |
++-------------------+
+1 row in set, 1 warning (0.01 sec)
+
+mysql> SELECT name FROM table1 where age=(SELECT MAX(age) FROM table1);
++----------+
+| name     |
++----------+
+| jiashiyi |
+| jiashiyi |
++----------+
+2 rows in set (0.03 sec)
+
+mysql> SELECT SUM(distinct age) FROM table1;
++-------------------+
+| SUM(distinct age) |
++-------------------+
+|               180 |
++-------------------+
+1 row in set (0.00 sec)
+
+mysql> SELECT SUM(distinct age) FROM table1;
++-------------------+
+| SUM(distinct age) |
++-------------------+
+|               180 |
++-------------------+
+1 row in set (0.00 sec)
+
+mysql> SELECT SUM(age) FROM table1;
++----------+
+| SUM(age) |
++----------+
+|      400 |
++----------+
+1 row in set (0.00 sec)
+
+mysql> SELECT name FROM table1 WHERE age=(SELECT MIN(age) FROM table1;
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '' at line 1
+mysql> SELECT name FROM table1 WHERE age=(SELECT MIN(age) FROM table1);
++--------+
+| name   |
++--------+
+| wangwu |
+| twile  |
++--------+
+2 rows in set (0.00 sec)
+
+mysql> SELECT count(*) FROM table1;
++----------+
+| count(*) |
++----------+
+|       18 |
++----------+
+1 row in set (0.00 sec)
+
+mysql> SELECT count(distinct *) FROM table1;
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '*) FROM table1' at line 1
+mysql> SELECT count(distinct age) FROM table1;
++---------------------+
+| count(distinct age) |
++---------------------+
+|                   8 |
++---------------------+
+1 row in set (0.00 sec)
+
+mysql> SELECT COUNT(name='panjiu') FROM table1;
++----------------------+
+| COUNT(name='panjiu') |
++----------------------+
+|                   18 |
++----------------------+
+1 row in set (0.00 sec)
+
+mysql> SELECT COUNT(distinct name='panjiu') FROM table1;
++-------------------------------+
+| COUNT(distinct name='panjiu') |
++-------------------------------+
+|                             2 |
++-------------------------------+
+1 row in set (0.00 sec)
+
+mysql> SELECT COUNT(*) FROM table1 WHERE name LIKE 'panjiu';
++----------+
+| COUNT(*) |
++----------+
+|        2 |
++----------+
+1 row in set (0.00 sec)
+
+mysql> SELECT AVG(age) FROM table1 WHERE sex='nv';
++----------+
+| AVG(age) |
++----------+
+|  22.0000 |
++----------+
+1 row in set (0.00 sec)
+
+mysql> SELECT*FROM table1 GROUP BY class;
++----------+------+------+--------+
+| name     | sex  | age  | class  |
++----------+------+------+--------+
+| wangwu   | nv   |   17 | c      |
+| chenliu  | nv   |   19 | c#     |
+| zhangsan | nan  |   20 | c++    |
+| sishi    | nv   |   27 | g      |
+| zhangsi  | nv   |   20 | java   |
+| panjiu   | nan  |   25 | pythen |
++----------+------+------+--------+
+6 rows in set (0.00 sec)
+
+mysql> SELECT COUNT(DISTINCT class) FROM table1;
++-----------------------+
+| COUNT(DISTINCT class) |
++-----------------------+
+|                     6 |
++-----------------------+
+1 row in set (0.01 sec)
+
+mysql> SELECT COUNT(class) FROM table1 group by class;
++--------------+
+| COUNT(class) |
++--------------+
+|            4 |
+|            3 |
+|            4 |
+|            2 |
+|            3 |
+|            2 |
++--------------+
+6 rows in set (0.00 sec)
+mysql> SELECT MAX(age) FROM table1 GROUP BY class;
++----------+
+| MAX(age) |
++----------+
+|       28 |
+|       19 |
+|       21 |
+|       27 |
+|       23 |
+|       25 |
++----------+
+6 rows in set (0.00 sec)
+
+mysql> SELECT*FROM table1 ORDER BY age;
++----------+------+------+--------+
+| name     | sex  | age  | class  |
++----------+------+------+--------+
+| twile    | nv   |   17 | c      |
+| wangwu   | nv   |   17 | c      |
+| chenliu  | nv   |   19 | c#     |
+| chenliu  | nv   |   19 | c#     |
+| shisan   | nv   |   19 | c#     |
+| zhangsan | nan  |   20 | c++    |
+| zhangsi  | nv   |   20 | java   |
+| shanqi   | nv   |   21 | c++    |
+| shisi    | nv   |   21 | c++    |
+| shanqi   | nv   |   21 | c++    |
+| zhaoba   | nv   |   23 | java   |
+| zhaoba   | nv   |   23 | java   |
+| panjiu   | nan  |   25 | pythen |
+| panjiu   | nan  |   25 | pythen |
+| sishi    | nv   |   27 | g      |
+| sishi    | nv   |   27 | g      |
+| jiashiyi | nv   |   28 | c      |
+| jiashiyi | nv   |   28 | c      |
++----------+------+------+--------+
+18 rows in set (0.00 sec)
+
+mysql> SELECT*FROM table1 ORDER BY age desc;
++----------+------+------+--------+
+| name     | sex  | age  | class  |
++----------+------+------+--------+
+| jiashiyi | nv   |   28 | c      |
+| jiashiyi | nv   |   28 | c      |
+| sishi    | nv   |   27 | g      |
+| sishi    | nv   |   27 | g      |
+| panjiu   | nan  |   25 | pythen |
+| panjiu   | nan  |   25 | pythen |
+| zhaoba   | nv   |   23 | java   |
+| zhaoba   | nv   |   23 | java   |
+| shanqi   | nv   |   21 | c++    |
+| shanqi   | nv   |   21 | c++    |
+| shisi    | nv   |   21 | c++    |
+| zhangsan | nan  |   20 | c++    |
+| zhangsi  | nv   |   20 | java   |
+| shisan   | nv   |   19 | c#     |
+| chenliu  | nv   |   19 | c#     |
+| chenliu  | nv   |   19 | c#     |
+| wangwu   | nv   |   17 | c      |
+| twile    | nv   |   17 | c      |
++----------+------+------+--------+
+18 rows in set (0.00 sec)
+
+mysql> SELECT*FROM table1 ORDER BY name desc;
++----------+------+------+--------+
+| name     | sex  | age  | class  |
++----------+------+------+--------+
+| zhaoba   | nv   |   23 | java   |
+| zhaoba   | nv   |   23 | java   |
+| zhangsi  | nv   |   20 | java   |
+| zhangsan | nan  |   20 | c++    |
+| wangwu   | nv   |   17 | c      |
+| twile    | nv   |   17 | c      |
+| sishi    | nv   |   27 | g      |
+| sishi    | nv   |   27 | g      |
+| shisi    | nv   |   21 | c++    |
+| shisan   | nv   |   19 | c#     |
+| shanqi   | nv   |   21 | c++    |
+| shanqi   | nv   |   21 | c++    |
+| panjiu   | nan  |   25 | pythen |
+| panjiu   | nan  |   25 | pythen |
+| jiashiyi | nv   |   28 | c      |
+| jiashiyi | nv   |   28 | c      |
+| chenliu  | nv   |   19 | c#     |
+| chenliu  | nv   |   19 | c#     |
++----------+------+------+--------+
+18 rows in set (0.00 sec)
+
+mysql> SELECT*FROM table1 ORDER BY name, age desc;
++----------+------+------+--------+
+| name     | sex  | age  | class  |
++----------+------+------+--------+
+| chenliu  | nv   |   19 | c#     |
+| chenliu  | nv   |   19 | c#     |
+| jiashiyi | nv   |   28 | c      |
+| jiashiyi | nv   |   28 | c      |
+| panjiu   | nan  |   25 | pythen |
+| panjiu   | nan  |   25 | pythen |
+| shanqi   | nv   |   21 | c++    |
+| shanqi   | nv   |   21 | c++    |
+| shisan   | nv   |   19 | c#     |
+| shisi    | nv   |   21 | c++    |
+| sishi    | nv   |   27 | g      |
+| sishi    | nv   |   27 | g      |
+| twile    | nv   |   17 | c      |
+| wangwu   | nv   |   17 | c      |
+| zhangsan | nan  |   20 | c++    |
+| zhangsi  | nv   |   20 | java   |
+| zhaoba   | nv   |   23 | java   |
+| zhaoba   | nv   |   23 | java   |
++----------+------+------+--------+
+18 rows in set (0.00 sec)
+
+mysql> SELECT AVG(age) FROM table1 GROUP BY class;
++----------+
+| AVG(age) |
++----------+
+|  22.5000 |
+|  19.0000 |
+|  20.7500 |
+|  27.0000 |
+|  22.0000 |
+|  25.0000 |
++----------+
+6 rows in set (0.00 sec)
+
+mysql> SELECT*FROM table1, table2;
++----------+------+------+--------+----+-------------+------+
+| name     | sex  | age  | class  | ID | name        | age  |
++----------+------+------+--------+----+-------------+------+
+| zhangsan | nan  |   20 | c++    |  1 | liudehua    |   40 |
+| zhangsan | nan  |   20 | c++    |  2 | ZHANGXUEYOU |   50 |
+| zhangsi  | nv   |   20 | java   |  1 | liudehua    |   40 |
+| zhangsi  | nv   |   20 | java   |  2 | ZHANGXUEYOU |   50 |
+| wangwu   | nv   |   17 | c      |  1 | liudehua    |   40 |
+| wangwu   | nv   |   17 | c      |  2 | ZHANGXUEYOU |   50 |
+| chenliu  | nv   |   19 | c#     |  1 | liudehua    |   40 |
+| chenliu  | nv   |   19 | c#     |  2 | ZHANGXUEYOU |   50 |
+| shanqi   | nv   |   21 | c++    |  1 | liudehua    |   40 |
+| shanqi   | nv   |   21 | c++    |  2 | ZHANGXUEYOU |   50 |
+| zhaoba   | nv   |   23 | java   |  1 | liudehua    |   40 |
+| zhaoba   | nv   |   23 | java   |  2 | ZHANGXUEYOU |   50 |
+| panjiu   | nan  |   25 | pythen |  1 | liudehua    |   40 |
+| panjiu   | nan  |   25 | pythen |  2 | ZHANGXUEYOU |   50 |
+| sishi    | nv   |   27 | g      |  1 | liudehua    |   40 |
+| sishi    | nv   |   27 | g      |  2 | ZHANGXUEYOU |   50 |
+| jiashiyi | nv   |   28 | c      |  1 | liudehua    |   40 |
+| jiashiyi | nv   |   28 | c      |  2 | ZHANGXUEYOU |   50 |
+| twile    | nv   |   17 | c      |  1 | liudehua    |   40 |
+| twile    | nv   |   17 | c      |  2 | ZHANGXUEYOU |   50 |
+| shisan   | nv   |   19 | c#     |  1 | liudehua    |   40 |
+| shisan   | nv   |   19 | c#     |  2 | ZHANGXUEYOU |   50 |
+| shisi    | nv   |   21 | c++    |  1 | liudehua    |   40 |
+| shisi    | nv   |   21 | c++    |  2 | ZHANGXUEYOU |   50 |
+| chenliu  | nv   |   19 | c#     |  1 | liudehua    |   40 |
+| chenliu  | nv   |   19 | c#     |  2 | ZHANGXUEYOU |   50 |
+| shanqi   | nv   |   21 | c++    |  1 | liudehua    |   40 |
+| shanqi   | nv   |   21 | c++    |  2 | ZHANGXUEYOU |   50 |
+| zhaoba   | nv   |   23 | java   |  1 | liudehua    |   40 |
+| zhaoba   | nv   |   23 | java   |  2 | ZHANGXUEYOU |   50 |
+| panjiu   | nan  |   25 | pythen |  1 | liudehua    |   40 |
+| panjiu   | nan  |   25 | pythen |  2 | ZHANGXUEYOU |   50 |
+| sishi    | nv   |   27 | g      |  1 | liudehua    |   40 |
+| sishi    | nv   |   27 | g      |  2 | ZHANGXUEYOU |   50 |
+| jiashiyi | nv   |   28 | c      |  1 | liudehua    |   40 |
+| jiashiyi | nv   |   28 | c      |  2 | ZHANGXUEYOU |   50 |
++----------+------+------+--------+----+-------------+------+
+36 rows in set (0.00 sec)
+
+mysql> SELECT*FROM table1, table2 WHERE table1.age=table2.age;
+Empty set (0.00 sec)
+
+mysql> CREATE table3 (teacher varchar(100), class varchar(100));
+
+mysql> CREATE TABLE table3 (teacher varchar(100), class varchar(100));
+ERROR 1050 (42S01): Table 'table3' already exists
+mysql> drop table table3
+    -> ;
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> CREATE TABLE table3 (teacher varchar(100), class varchar(100));
+Query OK, 0 rows affected (0.02 sec)
+
+mysql> SELECT*FROM table3;
+Empty set (0.00 sec)
+
+mysql> insert into table3 (teacher, class) values ('阿凡提', 'c++');
+Query OK, 1 row affected (0.00 sec)
+mysql> SELECT*FROM table3;
++-----------+-------+
+| teacher   | class |
++-----------+-------+
+| aaaa      | c++   |
+| 阿凡提    | c++   |
+| ez        | java  |
+| tanglang  | c     |
+| jinkesi   | g     |
+| ez        | java  |
+| anni      | c     |
++-----------+-------+
+7 rows in set (0.00 sec)
+mysql> drop table3;
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near 'table3' at line 1
+mysql> drop table table3;
+Query OK, 0 rows affected (0.01 sec)
+
+mysql> show tables;
++---------------+
+| Tables_in_db1 |
++---------------+
+| table1        |
+| table2        |
++---------------+
+2 rows in set (0.00 sec)
+
+mysql> create table table3 (teacher varchar(100), class varchar(100));
+Query OK, 0 rows affected (0.02 sec)
+
+mysql> insert into table3 (teacher, class) values ('a','c++');
+Query OK, 1 row affected (0.01 sec)
+
+mysql> insert into table3 (teacher, class) values ('b','c#');
+Query OK, 1 row affected (0.00 sec)
+
+mysql> insert into table3 (teacher, class) values ('c','java');
+Query OK, 1 row affected (0.00 sec)
+
+mysql> insert into table3 (teacher, class) values ('d','g');
+Query OK, 1 row affected (0.00 sec)
+
+mysql> select*from table3;
++---------+-------+
+| teacher | class |
++---------+-------+
+| a       | c++   |
+| b       | c#    |
+| c       | java  |
+| d       | g     |
++---------+-------+
+4 rows in set (0.00 sec)
+
+mysql> insert into table3 (teacher, class) values ('e','c');
+Query OK, 1 row affected (0.00 sec)
+
+mysql> select*from table1, table3 where table1.class=table3.class and table3.teacher='a';
++----------+------+------+-------+---------+-------+
+| name     | sex  | age  | class | teacher | class |
++----------+------+------+-------+---------+-------+
+| zhangsan | nan  |   20 | c++   | a       | c++   |
+| shanqi   | nv   |   21 | c++   | a       | c++   |
+| shisi    | nv   |   21 | c++   | a       | c++   |
+| shanqi   | nv   |   21 | c++   | a       | c++   |
++----------+------+------+-------+---------+-------+
+4 rows in set (0.02 sec)
+
+mysql> select*from table1, table3 where table1.class=table3.class and table3.teacher='c';
++---------+------+------+-------+---------+-------+
+| name    | sex  | age  | class | teacher | class |
++---------+------+------+-------+---------+-------+
+| zhangsi | nv   |   20 | java  | c       | java  |
+| zhaoba  | nv   |   23 | java  | c       | java  |
+| zhaoba  | nv   |   23 | java  | c       | java  |
++---------+------+------+-------+---------+-------+
+3 rows in set (0.00 sec)
+mysql> CREATE INDEX table1_age ON table1 (age);
+Query OK, 0 rows affected (0.10 sec)
+Records: 0  Duplicates: 0  Warnings: 0
