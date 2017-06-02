@@ -1,0 +1,216 @@
+[test2@localhost 5]$ gdb hello
+GNU gdb Red Hat Linux (5.3post-0.20021129.18rh)
+Copyright 2003 Free Software Foundation, Inc.
+GDB is free software, covered by the GNU General Public License, and you are
+welcome to change it and/or distribute copies of it under certain conditions.
+Type "show copying" to see the conditions.
+There is absolutely no warranty for GDB.  Type "show warranty" for details.
+This GDB was configured as "i386-redhat-linux-gnu"...
+(gdb) run
+Starting program: /home/test2/5/hello 
+hello world
+
+Program received signal SIGSEGV, Segmentation fault.
+0x08048338 in test () at hello.c:5
+warning: Source file is more recent than executable.
+
+5       *i=2;
+(gdb) quit
+The program is running.  Exit anyway? (y or n) y
+[test2@localhost 5]$ gdb -q hello
+(gdb) run
+Starting program: /home/test2/5/hello 
+hello world
+
+Program received signal SIGSEGV, Segmentation fault.
+0x08048338 in test () at hello.c:5
+warning: Source file is more recent than executable.
+
+5       *i=2;
+(gdb) where
+#0  0x08048338 in test () at hello.c:5
+#1  0x08048365 in main () at hello.c:10
+#2  0x42015574 in __libc_start_main () from /lib/tls/libc.so.6
+(gdb) list
+10      test();
+11      return 0;
+12      }
+(gdb) print i
+$1 = (int *) 0x0
+(gdb) quit
+The program is running.  Exit anyway? (y or n) y
+[test2@localhost 5]$ gdb -q hello
+(gdb) break 11
+Breakpoint 1 at 0x8048365: file hello.c, line 11.
+(gdb) run
+Starting program: /home/test2/5/hello 
+hello world
+
+Program received signal SIGSEGV, Segmentation fault.
+0x08048338 in test () at hello.c:5
+warning: Source file is more recent than executable.
+
+5       *i=2;
+(gdb) quit
+The program is running.  Exit anyway? (y or n) y
+[test2@localhost 5]$ gdb -q hello
+(gdb) break 10
+Breakpoint 1 at 0x8048360: file hello.c, line 10.
+(gdb) run
+Starting program: /home/test2/5/hello 
+hello world
+
+Breakpoint 1, main () at hello.c:10
+warning: Source file is more recent than executable.
+
+10      test();
+(gdb) quit
+The program is running.  Exit anyway? (y or n) y
+[test2@localhost 5]$ gdb -q hello
+(gdb) break test
+Breakpoint 1 at 0x804832e: file hello.c, line 4.
+(gdb) run
+Starting program: /home/test2/5/hello 
+hello world
+
+Breakpoint 1, test () at hello.c:4
+warning: Source file is more recent than executable.
+
+4       int *i=NULL;
+(gdb) continue
+Continuing.
+
+Program received signal SIGSEGV, Segmentation fault.
+0x08048338 in test () at hello.c:5
+5       *i=2;
+(gdb) quit
+The program is running.  Exit anyway? (y or n) y
+[test2@localhost 5]$ gdb -q hello
+(gdb) break 4
+Breakpoint 1 at 0x804832e: file hello.c, line 4.
+(gdb) break 9
+Breakpoint 2 at 0x8048350: file hello.c, line 9.
+(gdb) info break
+Num Type           Disp Enb Address    What
+1   breakpoint     keep y   0x0804832e in test at hello.c:4
+2   breakpoint     keep y   0x08048350 in main at hello.c:9
+(gdb) delete 2
+(gdb) info break
+Num Type           Disp Enb Address    What
+1   breakpoint     keep y   0x0804832e in test at hello.c:4
+(gdb) delete 1
+(gdb) break test
+Breakpoint 3 at 0x804832e: file hello.c, line 4.
+(gdb) info break
+Num Type           Disp Enb Address    What
+3   breakpoint     keep y   0x0804832e in test at hello.c:4
+(gdb) run
+Starting program: /home/test2/5/hello 
+hello world
+
+Breakpoint 3, test () at hello.c:4
+warning: Source file is more recent than executable.
+
+4       int *i=NULL;
+(gdb) set variable i=234234
+(gdb) print i
+$1 = (int *) 0x392fa
+(gdb) quit
+The program is running.  Exit anyway? (y or n) y
+[test2@localhost 5]$ gdb -q hello
+(gdb) break 9
+Breakpoint 1 at 0x8048350: file hello.c, line 9.
+(gdb) run
+Starting program: /home/test2/5/hello 
+
+Breakpoint 1, main () at hello.c:9
+warning: Source file is more recent than executable.
+
+9       printf("hello world\n");
+(gdb) step
+hello world
+10      test();
+(gdb) step
+test () at hello.c:4
+4       int *i=NULL;
+(gdb) step
+5       *i=2;
+(gdb)    
+
+Program received signal SIGSEGV, Segmentation fault.
+0x08048338 in test () at hello.c:5
+5       *i=2;
+(gdb) 
+
+Program terminated with signal SIGSEGV, Segmentation fault.
+The program no longer exists.
+(gdb) quit
+[test2@localhost 5]$ gdb -q hello
+(gdb) break 9
+Breakpoint 1 at 0x8048350: file hello.c, line 9.
+(gdb) next
+The program is not being run.
+(gdb) 
+The program is not being run.
+(gdb) run
+Starting program: /home/test2/5/hello 
+
+Breakpoint 1, main () at hello.c:9
+warning: Source file is more recent than executable.
+
+9       printf("hello world\n");
+(gdb) next
+hello world
+10      test();
+(gdb) 
+
+Program received signal SIGSEGV, Segmentation fault.
+0x08048338 in test () at hello.c:5
+5       *i=2;
+(gdb) 
+
+Program terminated with signal SIGSEGV, Segmentation fault.
+The program no longer exists.
+(gdb) quit
+[test2@localhost 5]$ gdb -q hello
+(gdb) break 9
+Breakpoint 1 at 0x8048350: file hello.c, line 9.
+(gdb) run
+Starting program: /home/test2/5/hello 
+
+Breakpoint 1, main () at hello.c:9
+warning: Source file is more recent than executable.
+
+9       printf("hello world\n");
+(gdb) return 0
+Make main return now? (y or n) y
+#0  0x42015574 in __libc_start_main ()
+   from /lib/tls/libc.so.6
+(gdb) quit
+The program is running.  Exit anyway? (y or n) y
+[test2@localhost 5]$ gdb -q hello
+(gdb) break 9
+Breakpoint 1 at 0x8048350: file hello.c, line 9.
+(gdb) run
+Starting program: /home/test2/5/hello 
+
+Breakpoint 1, main () at hello.c:9
+warning: Source file is more recent than executable.
+
+9       printf("hello world\n");
+(gdb) step
+hello world
+10      test();
+(gdb) 
+test () at hello.c:4
+4       int *i=NULL;
+(gdb) return
+Make test return now? (y or n) y
+#0  main () at hello.c:11
+11      return 0;
+(gdb) help all
+ni -- Step one instruction
+si -- Step one instruction exactly
+stepping -- Specify single-stepping behavior at a tracepoint
+tp -- Set a tracepoint at a specified line or function or address
+where -- Print backtrace of all stack frames

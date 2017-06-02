@@ -1,0 +1,390 @@
+[oracle@localhost ~]$ sqlplus /nolog
+
+SQL*Plus: Release 11.2.0.1.0 Production on 星期二 4月 4 14:49:05 2017
+
+Copyright (c) 1982, 2009, Oracle.  All rights reserved.
+
+SQL> conn /as sysdba
+Connected to an idle instance.
+SQL> startup
+ORACLE instance started.
+
+Total System Global Area  795127808 bytes
+Fixed Size                  1339456 bytes
+Variable Size             482348992 bytes
+Database Buffers          306184192 bytes
+Redo Buffers                5255168 bytes
+Database mounted.
+Database opened.
+SQL> quit
+Disconnected from Oracle Database 11g Enterprise Edition Release 11.2.0.1.0 - Production
+With the Partitioning, OLAP, Data Mining and Real Application Testing options
+[oracle@localhost ~]$ lsnrctl
+
+LSNRCTL for Linux: Version 11.2.0.1.0 - Production on 04-4月 -2017 14:51:06
+
+Copyright (c) 1991, 2009, Oracle.  All rights reserved.
+
+Welcome to LSNRCTL, type "help" for information.
+
+LSNRCTL> start
+TNS-01106: Listener using listener name LISTENER has already been started
+LSNRCTL> stop
+Connecting to (DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=localhost)(PORT=1521)))
+The command completed successfully
+LSNRCTL> start
+Starting /opt/oracle/product/11.2.0/bin/tnslsnr: please wait...
+
+TNSLSNR for Linux: Version 11.2.0.1.0 - Production
+System parameter file is /opt/oracle/product/11.2.0/network/admin/listener.ora
+Log messages written to /opt/oracle/diag/tnslsnr/localhost/listener/alert/log.xml
+Listening on: (DESCRIPTION=(ADDRESS=(PROTOCOL=tcp)(HOST=localhost)(PORT=1521)))
+
+Connecting to (DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=localhost)(PORT=1521)))
+STATUS of the LISTENER
+------------------------
+Alias                     LISTENER
+Version                   TNSLSNR for Linux: Version 11.2.0.1.0 - Production
+Start Date                04-4月 -2017 14:51:38
+Uptime                    0 days 0 hr. 0 min. 0 sec
+Trace Level               off
+Security                  ON: Local OS Authentication
+SNMP                      OFF
+Listener Parameter File   /opt/oracle/product/11.2.0/network/admin/listener.ora
+Listener Log File         /opt/oracle/diag/tnslsnr/localhost/listener/alert/log.xml
+Listening Endpoints Summary...
+  (DESCRIPTION=(ADDRESS=(PROTOCOL=tcp)(HOST=localhost)(PORT=1521)))
+The listener supports no services
+The command completed successfully
+LSNRCTL> quit
+[cc@localhost ~]$ . .bash_profile
+[cc@localhost ~]$ sqlplus  dbuser1/dbuser1@orcl
+
+SQL*Plus: Release 11.2.0.1.0 Production on 星期二 4月 4 14:54:13 2017
+
+Copyright (c) 1982, 2009, Oracle.  All rights reserved.
+
+
+Connected to:
+Oracle Database 11g Enterprise Edition Release 11.2.0.1.0 - Production
+With the Partitioning, OLAP, Data Mining and Real Application Testing options
+
+[oracle@localhost ~]$ sqlplus /nolog
+
+SQL*Plus: Release 11.2.0.1.0 Production on 鏄熸湡浜4鏈4 15:17:00 2017
+
+Copyright (c) 1982, 2009, Oracle.  All rights reserved.
+
+SQL> conn /as sysdba;
+Connected.
+SQL> CTEATE USER dbuser2 IDENTIFIED BY dbuser2;
+SP2-0734: unknown command beginning "CTEATE USE..." - rest of line ignored.
+SQL> create user dbuser2 identified by dbuser2;
+
+User created.
+
+SQL> grant connect, resource to dbuser2;
+
+Grant succeeded.
+[oracle@localhost ~]$ sqlplus /nolog
+
+SQL*Plus: Release 11.2.0.1.0 Production on 鏄熸湡浜4鏈4 15:22:49 2017
+
+Copyright (c) 1982, 2009, Oracle.  All rights reserved.
+
+SQL> conn /as sysdba
+Connected.
+SQL> drop user dbuser2;
+
+User dropped.
+[cc@localhost ~]$ sqlplus dbuser1/dbuser1@orcl
+
+SQL*Plus: Release 11.2.0.1.0 Production on 鏄熸湡浜4鏈4 15:29:36 2017
+
+Copyright (c) 1982, 2009, Oracle.  All rights reserved.
+
+
+Connected to:
+Oracle Database 11g Enterprise Edition Release 11.2.0.1.0 - Production
+With the Partitioning, OLAP, Data Mining and Real Application Testing options
+
+SQL> create table table1 (name varchar2(100), age int);
+
+Table created.
+
+SQL> desc table1;
+ Name                                      Null?    Type
+ ----------------------------------------- -------- ----------------------------
+ NAME                                               VARCHAR2(100)
+ AGE                                                NUMBER(38)
+
+SQL> drop table table1;
+
+Table dropped.
+
+SQL> create table table1 (id int, name varchar2(100), constraint pk_id primary key(id));
+
+Table created.
+
+SQL> desc table1;
+ Name                                      Null?    Type
+ ----------------------------------------- -------- ----------------------------
+ ID                                        NOT NULL NUMBER(38)
+ NAME                                               VARCHAR2(100)
+
+SQL> create table table1 (id int, name varchar2(100), constraint pk_id primary key(id));
+
+Table created.
+
+SQL> desc table1;
+ Name                                      Null?    Type
+ ----------------------------------------- -------- ----------------------------
+ ID                                        NOT NULL NUMBER(38)
+ NAME                                               VARCHAR2(100)
+
+SQL> create sequence seq1
+  2  increment by 1
+  3  start with 1
+  4  maxvalue 999999
+  5  ;
+
+Sequence created.
+
+SQL> insert into table1 (id, name) values (0, 'Peter');
+
+1 row created.
+
+SQL> select*from table1;
+
+        ID
+----------
+NAME
+--------------------------------------------------------------------------------
+         0
+Peter
+
+SQL> insert into table1 (id, name) values (1, 'Tom');                          
+
+1 row created.
+
+SQL> select*from table1;
+
+        ID
+----------
+NAME
+--------------------------------------------------------------------------------
+         0
+Peter
+
+         1
+Tom
+
+SQL> delete from table1;                               
+
+2 rows deleted.
+
+SQL> insert into table1 (id, name) values (seq1.nextval, 'tom');
+
+1 row created.
+
+SQL> select * from table1;
+
+        ID
+----------
+NAME
+--------------------------------------------------------------------------------
+         1
+tom
+
+SQL> insert into table1 (id, name) values (seq1.nextval, 'peter');
+
+1 row created.
+
+SQL> select*from table1;
+
+        ID
+----------
+NAME
+--------------------------------------------------------------------------------
+         1
+tom
+
+         2
+peter
+
+SQL> create table table2 (id int);
+
+Table created.
+
+SQL> insert into table2 values (seq1.nextval);
+
+1 row created.
+
+SQL> insert into table2 values (seq1.nextval);
+
+1 row created.
+
+SQL> insert into table2 values (seq1.nextval);
+
+1 row created.
+
+SQL> select * from table2;
+
+        ID
+----------
+         4
+         5
+         6
+
+SQL> insert into table1 (id, name) values (seq1.nextval, 'merry');
+
+1 row created.
+
+SQL> select*from table1;
+
+        ID
+----------
+NAME
+--------------------------------------------------------------------------------
+         1
+tom
+
+         2
+peter
+
+         7
+merry
+
+
+SQL> select seq1.nextval from dual;
+
+   NEXTVAL
+----------
+         8
+
+SQL> select seq1.nextval from dual;
+
+   NEXTVAL
+----------
+         9
+
+SQL> insert into table2 values (seq1.nextval);
+
+1 row created.
+
+SQL> select*from table2;
+
+        ID
+----------
+         4
+         5
+         6
+        10
+
+SQL> select*from table1;
+
+        ID
+----------
+NAME
+--------------------------------------------------------------------------------
+         1
+tom
+
+         2
+peter
+
+         7
+merry
+
+SQL> insert into table1 (id, name) values (seq1.nextval, 'merry');
+
+1 row created.
+
+SQL> select *from table1;
+
+        ID
+----------
+NAME
+--------------------------------------------------------------------------------
+        11
+merry
+         1
+tom
+         2
+peter
+        ID
+----------
+NAME
+--------------------------------------------------------------------------------
+         7
+merry
+
+SQL> select *from table1;
+
+        ID
+----------
+NAME
+--------------------------------------------------------------------------------
+         1
+tom
+
+         2
+peter
+
+         7
+merry
+
+SQL> commit;
+
+Commit complete.
+
+SQL> select*from table1;
+
+        ID
+----------
+NAME
+--------------------------------------------------------------------------------
+        11
+merry
+
+         1
+tom
+
+         2
+peter
+
+
+        ID
+----------
+NAME
+--------------------------------------------------------------------------------
+         7
+merry
+
+SQL> delete from table2;
+
+4 rows deleted.
+
+SQL> select*from table2;
+
+        ID
+----------
+         4
+         5
+         6
+        10
+
+SQL> rollback;
+
+Rollback complete.
+SQL> select*from table2;
+
+        ID
+----------
+         4
+         5
+         6
+        10
+
+SQL>
+
